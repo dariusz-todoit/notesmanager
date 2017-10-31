@@ -38,3 +38,5 @@ manifests
 *.js
 *.gwt.rpc
 rpcPolicyManifest
+.metadata
+RemoteSystemsTempFiles
