@@ -40,3 +40,4 @@ manifests
 rpcPolicyManifest
 .metadata
 RemoteSystemsTempFiles
+notes.csv
