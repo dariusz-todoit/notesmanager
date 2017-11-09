@@ -8,5 +8,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("message")
 public interface MessageService extends RemoteService {
-	Message getMessage(ArrayList<String> input);
+	ArrayList<Message> getMessages ();
+	void createMessage (Message newMessage);
+	ArrayList<Message> createTest (Message newMessage);
 }

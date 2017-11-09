@@ -1,22 +1,26 @@
 package com.todoit.training.client;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class Message implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
+  
+  private String id;
+  private String note;
 
-	// private String message;
-	private ArrayList<String> notes;
+  public Message(){};
 
-	public Message(){};
+  public void setMessage (String id, String note) {
+    this.id = id;
+    this.note = note;
+  }
 
-	public void setMessage(ArrayList<String> notes) {
-		this.notes = notes;
-	}
-
-	public ArrayList<String> getMessage() {
-		return notes;
-	}
+  public String getMessage () {
+    return note;
+  }
+  
+  public String getMessageID () {
+    return id;
+  }
 }
