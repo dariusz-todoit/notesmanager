@@ -27,8 +27,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class NotesManager implements EntryPoint {
 
   private MessageServiceAsync messageService = GWT.create(MessageService.class);
-  private ArrayList<Message> messageList;
-
+  private ArrayList<Message> messageList = new ArrayList<Message> ();
+  
   private void showPage () {
     RootPanel.get("gwtContainer").clear();
     Button b1 = new Button("New note");
@@ -52,21 +52,24 @@ public class NotesManager implements EntryPoint {
     redButton.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          Message message = new Message();
-          message.setMessage("2", textArea1.getText());
+        	
           
           // messageService.createTest (message, new AsyncCallback<ArrayList<Message>> () {
-           messageService.createMessage (message, new AsyncCallback<Void> () {
+          // messageService.createMessage (message, new AsyncCallback<Void> () {
+        messageService.createNewMessage (textArea1.getText(), new AsyncCallback<String> () {	
           	@Override
-            public void onFailure(Throwable caught) {
+            public void onFailure (Throwable caught) {
               /* server side error occurred */
               Window.alert("Unable to obtain server response: " + caught.getMessage());
             } 
         	
         	@Override
         //    public void onSuccess(ArrayList<Message> result) {
-            public void onSuccess() {
-        		// messageList = result;
+        //     public void onSuccess (Void result) {
+        	public void onSuccess (String newID) {
+        		Message message = new Message();
+            	message.setMessage (newID, textArea1.getText());
+        		messageList.add (message);                
         		showPage ();    		   		
         	}
         	
@@ -92,7 +95,90 @@ public class NotesManager implements EntryPoint {
       flexTable.setWidget(i, 3, updateButton[i]);
     } // for (int i = 0; i < messageList.size(); i++)
     
+    for (int i = 0; i < messageList.size(); i++) {
+      final int j = i;
+      removeButton[i].addClickHandler(new ClickHandler() {
+        
+        @Override
+        public void onClick(ClickEvent event) {
+         // System.out.println(messageList.get (j).getMessageID());
+          messageService.removeMessage (messageList.get(j).getMessageID(), new AsyncCallback<Boolean> () {
+            @Override
+            public void onFailure(Throwable caught) {
+              /* server side error occurred */
+              Window.alert("Unable to obtain server response: " + caught.getMessage());
+            }
+            @Override
+            public void onSuccess (Boolean result) {
+              messageList.remove(j);
+              showPage ();              
+            }
+            
+         });
+        }
+       });
     
+     
+      updateButton[i].addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          final DialogBox myDialog = new DialogBox();
+          final Button saveButton = new Button ("Save note " + messageList.get(j).getMessageID());
+          
+          VerticalPanel vp = new VerticalPanel();
+          final TextArea textArea2 = new TextArea();
+          textArea2.setText (messageList.get (j).getMessage ());
+          vp.add(textArea2);
+          vp.add(saveButton);
+          
+          myDialog.add(vp);
+                      
+          int left = Window.getClientWidth()/ 2;
+          int top = Window.getClientHeight()/ 2;
+          myDialog.setPopupPosition(left, top);
+          myDialog.show();
+          
+          saveButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+              final Message message = new Message ();
+              message.setMessage (messageList.get(j).getMessageID(), textArea2.getText());
+               // notes.remove(j);
+               // notes.add(j, textArea2.getText());
+               myDialog.hide();
+               messageService.updateMessage(message, new AsyncCallback<Boolean> () {
+                 @Override
+                 public void onFailure (Throwable caught) {
+                   /* server side error occurred */
+                   Window.alert("Unable to obtain server response: " + caught.getMessage());
+                 }
+                 @Override
+                 public void onSuccess (Boolean result) {
+                   messageList.remove(j);
+                   messageList.add(j, message);
+                   showPage ();              
+                 }
+                 
+                 
+                 
+               }); 
+               
+               
+               
+            }});
+        }
+        });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    } // for (int i = 0; i < messageList.size(); i++)          
+        
     
     RootPanel.get("gwtContainer").add(verticalPanel);    
   } // private void showPage ()
@@ -106,7 +192,7 @@ public class NotesManager implements EntryPoint {
         } 
     	
     	@Override
-        public void onSuccess(ArrayList<Message> result) {
+        public void onSuccess (ArrayList<Message> result) {
     		messageList = result;
     		showPage ();    		   		
     	}
