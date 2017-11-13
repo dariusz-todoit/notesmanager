@@ -70,20 +70,17 @@ public class NotesManager implements EntryPoint {
     verticalPanel.add(b1);
     verticalPanel.add(flexTable);
     
-    Button[] removeButton = new Button[messageList.size()];
-    Button[] updateButton = new Button[messageList.size()];
-    for (int i = 0; i < messageList.size(); i++) {
-      removeButton[i] = new Button ("Remove note " + messageList.get(i).getMessageID());
-      updateButton[i] = new Button ("Update note " + messageList.get(i).getMessageID());
-      flexTable.setHTML(i, 0, "" + messageList.get(i).getMessageID());
-      flexTable.setHTML(i, 1, messageList.get(i).getMessage());
-      flexTable.setWidget(i, 2, removeButton[i]);
-      flexTable.setWidget(i, 3, updateButton[i]);
-    } // for (int i = 0; i < messageList.size(); i++)
-    
     for (int i = 0; i < messageList.size(); i++) {
       final int j = i;
-      removeButton[i].addClickHandler (new ClickHandler() {
+      Message msg = messageList.get(i);
+      Button removeButton = new Button ("Remove note " + msg.getMessageID());
+      Button updateButton = new Button ("Update note " + msg.getMessageID());
+      flexTable.setHTML(i, 0, "" + msg.getMessageID());
+      flexTable.setHTML(i, 1, msg.getMessage());
+      flexTable.setWidget(i, 2, removeButton);
+      flexTable.setWidget(i, 3, updateButton);
+    
+      removeButton.addClickHandler (new ClickHandler() {
         
         @Override
         public void onClick(ClickEvent event) {
@@ -104,7 +101,7 @@ public class NotesManager implements EntryPoint {
       }); // removeButton[i].addClickHandler (new ClickHandler()
     
      
-      updateButton[i].addClickHandler (new ClickHandler() {
+      updateButton.addClickHandler (new ClickHandler() {
         @Override
         public void onClick (ClickEvent event) {
           final DialogBox myDialog = new DialogBox();
