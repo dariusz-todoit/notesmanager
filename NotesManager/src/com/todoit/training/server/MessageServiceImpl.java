@@ -31,17 +31,26 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
 
 
   public ArrayList<Message> getMessages () {    
+	CSVParser parser = null;
     try {  
-      CSVParser parser = 
+      parser = 
         new CSVParser (new FileReader(notesPath), CSVFormat.DEFAULT.withHeader("ID", "note").withDelimiter(','));    
       for (CSVRecord record : parser) {
         Message m = new Message ();
         m.setMessage (record.get("ID"), record.get("note"));
         messageList.add(m);             
       }        
-      parser.close();       
     } catch (Exception e){
       System.out.println(e.getMessage());
+    } finally {
+    	//make sure reader is closed to avoid memory leak
+    	if (parser != null) {
+    		try {
+				parser.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}       
     }
     if (messageList.size () > 0) messageList.remove(0);
     
