@@ -10,13 +10,13 @@ public class Message implements Serializable {
   private String note;
 
   public Message(){};
-
-  public void setMessage (String id, String note) {
+  
+  public Message (String id, String note) {
     this.id = id;
     this.note = note;
   }
 
-  public String getMessage () {
+  public String getNote () {
     return note;
   }
   

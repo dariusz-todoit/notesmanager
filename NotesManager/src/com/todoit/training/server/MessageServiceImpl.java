@@ -36,8 +36,7 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
       parser = 
         new CSVParser (new FileReader(notesPath), CSVFormat.DEFAULT.withHeader("ID", "note").withDelimiter(','));    
       for (CSVRecord record : parser) {
-        Message m = new Message ();
-        m.setMessage (record.get("ID"), record.get("note"));
+        Message m = new Message (record.get("ID"), record.get("note"));        
         messageList.add(m);             
       }        
     } catch (Exception e){
@@ -59,9 +58,8 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
   
   
   public String createNewMessage (String newNote) {
-    Message newMessage = new Message ();
     String newID = UUID.randomUUID().toString();
-    newMessage.setMessage (newID, newNote);    
+    Message newMessage = new Message (newID, newNote);    
     messageList.add (newMessage);    
     saveCSV ();    
     return newID;    
@@ -105,7 +103,7 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
       csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
       csvFilePrinter.printRecord(FILE_HEADER);    
       for (int i = 0; i < messageList.size(); i++) {
-        Object [] line  = {messageList.get(i).getMessageID(), messageList.get(i).getMessage()};
+        Object [] line  = {messageList.get(i).getMessageID(), messageList.get(i).getNote()};
         csvFilePrinter.printRecord(line);        
       }
       

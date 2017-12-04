@@ -48,13 +48,12 @@ public class NotesManager implements EntryPoint {
            @Override
           public void onFailure (Throwable caught) {
             /* server side error occurred */
-            Window.alert("Unable to obtain server response: " + caught.getMessage());
+             onFailureAlert (caught.getMessage());
           } // public void onFailure (Throwable caught)
 
           @Override
           public void onSuccess (String newID) {
-            Message message = new Message();
-            message.setMessage (newID, textArea1.getText());
+            Message message = new Message (newID, textArea1.getText());           
             messageList.add (message);                
             showPage ();               
           } // public void onSuccess (String newID)
@@ -76,7 +75,7 @@ public class NotesManager implements EntryPoint {
       Button removeButton = new Button ("Remove note " + msg.getMessageID());
       Button updateButton = new Button ("Update note " + msg.getMessageID());
       flexTable.setHTML(i, 0, "" + msg.getMessageID());
-      flexTable.setHTML(i, 1, msg.getMessage());
+      flexTable.setHTML(i, 1, msg.getNote());
       flexTable.setWidget(i, 2, removeButton);
       flexTable.setWidget(i, 3, updateButton);
     
@@ -88,7 +87,7 @@ public class NotesManager implements EntryPoint {
             @Override
             public void onFailure(Throwable caught) {
               /* server side error occurred */
-              Window.alert("Unable to obtain server response: " + caught.getMessage());
+              onFailureAlert (caught.getMessage());
             } // public void onFailure(Throwable caught)
             @Override
             public void onSuccess (Boolean result) {
@@ -108,7 +107,7 @@ public class NotesManager implements EntryPoint {
           final Button saveButton = new Button ("Save note " + messageList.get(j).getMessageID());          
           VerticalPanel vp = new VerticalPanel();
           final TextArea textArea2 = new TextArea();
-          textArea2.setText (messageList.get (j).getMessage ());
+          textArea2.setText (messageList.get (j).getNote ());
           vp.add(textArea2);
           vp.add(saveButton);
           
@@ -122,19 +121,19 @@ public class NotesManager implements EntryPoint {
           saveButton.addClickHandler (new ClickHandler() {
             @Override
             public void onClick (ClickEvent event) {
-              final Message message = new Message ();
-              message.setMessage (messageList.get(j).getMessageID(), textArea2.getText());
+              final Message message = new Message (messageList.get(j).getMessageID(), textArea2.getText());              
               messageService.updateMessage (message, new AsyncCallback<Boolean> () {
                 @Override
                 public void onFailure (Throwable caught) {
                   /* server side error occurred */
-                  Window.alert("Unable to obtain server response: " + caught.getMessage());
+                  onFailureAlert (caught.getMessage());
                 } // public void onFailure (Throwable caught)
                 @Override
                 public void onSuccess (Boolean result) {
                   messageList.remove (j);
                   messageList.add (j, message);
                   showPage ();
+                  myDialog.hide();
                 } // public void onSuccess (Boolean result)
               }); // messageService.updateMessage (message, new AsyncCallback<Boolean> ()
             } // public void onClick (ClickEvent event)
@@ -152,7 +151,7 @@ public class NotesManager implements EntryPoint {
       @Override
       public void onFailure (Throwable caught) {
         /* server side error occurred */
-        Window.alert("Unable to obtain server response: " + caught.getMessage());
+        onFailureAlert (caught.getMessage());
       } // public void onFailure (Throwable caught)
       @Override
       public void onSuccess (ArrayList<Message> result) {
@@ -162,5 +161,10 @@ public class NotesManager implements EntryPoint {
       
     });// messageService.getMessages (new AsyncCallback<ArrayList<Message>> ()
   } // public void onModuleLoad() 
+
+  private void onFailureAlert (String msg) {
+    Window.alert ("Unable to obtain server response: " + msg);
+  }
+
 } // public class NotesManager implements EntryPoint
 
