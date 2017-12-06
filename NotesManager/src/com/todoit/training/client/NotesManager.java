@@ -44,22 +44,8 @@ public class NotesManager implements EntryPoint {
     redButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        messageService.createNewMessage (textArea1.getText(), new AsyncCallback<String> () {  
-           @Override
-          public void onFailure (Throwable caught) {
-            /* server side error occurred */
-             onFailureAlert (caught.getMessage());
-          } // public void onFailure (Throwable caught)
-
-          @Override
-          public void onSuccess (String newID) {
-            Message message = new Message (newID, textArea1.getText());           
-            messageList.add (message);                
-            showPage ();               
-          } // public void onSuccess (String newID)
-          
-        }); // messageService.createNewMessage (textArea1.getText(), new AsyncCallback<String> ()
-          myPopup.hide();
+        newMessage (textArea1.getText());
+        myPopup.hide();
       } // public void onClick(ClickEvent event)
     }); // redButton.addClickHandler(new ClickHandler()
     
@@ -79,23 +65,10 @@ public class NotesManager implements EntryPoint {
       flexTable.setWidget(i, 2, removeButton);
       flexTable.setWidget(i, 3, updateButton);
     
-      removeButton.addClickHandler (new ClickHandler() {
-        
+      removeButton.addClickHandler (new ClickHandler() {        
         @Override
         public void onClick(ClickEvent event) {
-          messageService.removeMessage (messageList.get(j).getMessageID(), new AsyncCallback<Boolean> () {
-            @Override
-            public void onFailure(Throwable caught) {
-              /* server side error occurred */
-              onFailureAlert (caught.getMessage());
-            } // public void onFailure(Throwable caught)
-            @Override
-            public void onSuccess (Boolean result) {
-              messageList.remove(j);
-              showPage ();              
-            } // public void onSuccess (Boolean result)
-            
-          }); // messageService.removeMessage (messageList.get(j).getMessageID(), new AsyncCallback<Boolean> ()
+          remMessage (j);
         } // public void onClick(ClickEvent event)
       }); // removeButton[i].addClickHandler (new ClickHandler()
     
@@ -122,20 +95,8 @@ public class NotesManager implements EntryPoint {
             @Override
             public void onClick (ClickEvent event) {
               final Message message = new Message (messageList.get(j).getMessageID(), textArea2.getText());              
-              messageService.updateMessage (message, new AsyncCallback<Boolean> () {
-                @Override
-                public void onFailure (Throwable caught) {
-                  /* server side error occurred */
-                  onFailureAlert (caught.getMessage());
-                } // public void onFailure (Throwable caught)
-                @Override
-                public void onSuccess (Boolean result) {
-                  messageList.remove (j);
-                  messageList.add (j, message);
-                  showPage ();
-                  myDialog.hide();
-                } // public void onSuccess (Boolean result)
-              }); // messageService.updateMessage (message, new AsyncCallback<Boolean> ()
+              updMessage (j, message);
+              myDialog.hide();
             } // public void onClick (ClickEvent event)
           }); // saveButton.addClickHandler (new ClickHandler()
         } // public void onClick (ClickEvent event)
@@ -165,6 +126,58 @@ public class NotesManager implements EntryPoint {
   private void onFailureAlert (String msg) {
     Window.alert ("Unable to obtain server response: " + msg);
   }
+  
+  private void newMessage (String newNote) {
+    final String newNote1 = newNote;
+    messageService.createNewMessage (newNote, new AsyncCallback<String> () {  
+      @Override
+      public void onFailure (Throwable caught) {
+        /* server side error occurred */
+        onFailureAlert (caught.getMessage());
+      } // public void onFailure (Throwable caught)
 
+      @Override
+      public void onSuccess (String newID) {
+        Message message = new Message (newID, newNote1);           
+        messageList.add (message);                
+        showPage ();               
+      } // public void onSuccess (String newID)   
+    }); // messageService.createNewMessage (textArea1.getText(), new AsyncCallback<String> ()
+  }
+  
+  private void remMessage (int index) {
+    final int index1 = index;
+    messageService.removeMessage (messageList.get(index).getMessageID(), new AsyncCallback<Boolean> () {
+      @Override
+      public void onFailure(Throwable caught) {
+        /* server side error occurred */
+        onFailureAlert (caught.getMessage());
+      } // public void onFailure(Throwable caught)
+      @Override
+      public void onSuccess (Boolean result) {
+        messageList.remove(index1);
+        showPage ();              
+      } // public void onSuccess (Boolean result)    
+    }); // messageService.removeMessage (messageList.get(j).getMessageID(), new AsyncCallback<Boolean> ()
+  }
+  
+  private void updMessage (int index, Message message) {
+    final int index1 = index;
+    final Message message1 = message;
+    messageService.updateMessage (message, new AsyncCallback<Boolean> () {
+      @Override
+      public void onFailure (Throwable caught) {
+        /* server side error occurred */
+        onFailureAlert (caught.getMessage());
+      } // public void onFailure (Throwable caught)
+      @Override
+      public void onSuccess (Boolean result) {
+        messageList.remove (index1);
+        messageList.add (index1, message1);
+        showPage ();      
+      } // public void onSuccess (Boolean result)
+    }); // messageService.updateMessage (message, new AsyncCallback<Boolean> ()
+  }
+  
 } // public class NotesManager implements EntryPoint
 
