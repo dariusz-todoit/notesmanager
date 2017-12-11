@@ -6,6 +6,8 @@ import com.todoit.training.client.MessageService;
 import java.util.UUID;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -19,6 +21,7 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
   private ArrayList<Message> messageList = new ArrayList<Message> ();
   private static String notesPath;
   private static final long serialVersionUID = 1L;
+  private HashMap<String, Integer> messageIdToRowNumber = new HashMap<>();
   
   
   public MessageServiceImpl() {
@@ -36,8 +39,11 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
       parser = 
         new CSVParser (new FileReader(notesPath), CSVFormat.DEFAULT.withHeader("ID", "note").withDelimiter(','));    
       for (CSVRecord record : parser) {
-        Message m = new Message (record.get("ID"), record.get("note"));        
-        messageList.add(m);             
+        Message m = new Message (record.get("ID"), record.get("note"));
+        if (! m.getMessageID().equals("ID")) {
+          messageList.add(m);
+          messageIdToRowNumber.put (m.getMessageID(), messageList.size() - 1);
+        }                     
       }        
     } catch (Exception e){
       System.out.println(e.getMessage());
@@ -46,13 +52,11 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
     	if (parser != null) {
     		try {
 				parser.close();
-			} catch (IOException e) {
+			  } catch (IOException e) {
 				e.printStackTrace();
-			}
-		}       
-    }
-    if (messageList.size () > 0) messageList.remove(0);
-    
+			  }
+		  }       
+    }    
     return messageList;    
   }  // public ArrayList<Message> getMessages ()
   
@@ -60,35 +64,30 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
   public String createNewMessage (String newNote) {
     String newID = UUID.randomUUID().toString();
     Message newMessage = new Message (newID, newNote);    
-    messageList.add (newMessage);    
+    messageList.add (newMessage);
+    messageIdToRowNumber.put (newID, messageList.size() - 1);
     saveCSV ();    
     return newID;    
   } // public String createNewMessage (String newNote)
   
   public Boolean removeMessage (String messageID) {
-    int i = 0;
-    while ((i < messageList.size ()) && (! messageList.get (i).getMessageID ().equals(messageID))) {
-      i++;      
-    };
-    if (i < messageList.size () && messageList.get (i).getMessageID ().equals(messageID)) {      
-      messageList.remove(i);
-      saveCSV ();
-      return true;
+    int i = messageIdToRowNumber.get (messageID);
+    messageList.remove(i);    
+    while (i < messageList.size ()) {
+      messageIdToRowNumber.put (messageList.get(i).getMessageID(), i);
+      i++;
     }
-    return false;    
+    messageIdToRowNumber.remove (messageID);
+    saveCSV ();
+    return true; 
   } // public Boolean removeMessage (String messageID)
   
   public Boolean updateMessage (Message newMessage) {
-    int i = 0;
-    while ((i < messageList.size ()) && (! messageList.get (i).getMessageID ().equals(newMessage.getMessageID()))) 
-      i++;
-    if (i < messageList.size () && messageList.get (i).getMessageID ().equals (newMessage.getMessageID ())) {
-      messageList.remove(i);
-      messageList.add(i, newMessage);
-      saveCSV ();
-      return true;
-    }
-    return false;
+    int i = messageIdToRowNumber.get (newMessage.getMessageID());
+    messageList.remove(i);
+    messageList.add(i, newMessage);
+    saveCSV ();
+    return true;  
   } // public Boolean updateMessage (Message newMessage)
   
   
