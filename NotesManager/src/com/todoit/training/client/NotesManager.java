@@ -23,36 +23,36 @@ public class NotesManager implements EntryPoint {
   
   private void showPage () {
     RootPanel.get("gwtContainer").clear();
-    Button b1 = new Button("New note");
-    final PopupPanel myPopup = new PopupPanel();
+    Button newNoteButton = new Button("New note");
+    final PopupPanel newNotePopup = new PopupPanel();
     final TextArea textArea1 = new TextArea();
     textArea1.setCharacterWidth(20);
     textArea1.setVisibleLines(5);
     
     final VerticalPanel vPanel = new VerticalPanel();
     vPanel.add(textArea1);
-    Button redButton = new Button("Save note");
-    redButton.setWidth("100px");
-    vPanel.add(redButton);
-    myPopup.setWidget(vPanel);
-    b1.addClickHandler(new ClickHandler() {
+    Button saveNewNoteButton = new Button("Save note");
+    saveNewNoteButton.setWidth("100px");
+    vPanel.add(saveNewNoteButton);
+    newNotePopup.setWidget(vPanel);
+    newNoteButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {    
-        myPopup.center();
+        newNotePopup.center();
       }
-    }); // b1.addClickHandler(new ClickHandler()
+    }); // newNoteButton.addClickHandler(new ClickHandler()
     
-    redButton.addClickHandler(new ClickHandler() {
+    saveNewNoteButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
         newMessage (textArea1.getText());
-        myPopup.hide();
+        newNotePopup.hide();
       } // public void onClick(ClickEvent event)
-    }); // redButton.addClickHandler(new ClickHandler()
+    }); // saveNewNoteButton.addClickHandler(new ClickHandler()
     
     
     FlexTable flexTable = new FlexTable();
     VerticalPanel verticalPanel = new VerticalPanel();
-    verticalPanel.add(b1);
+    verticalPanel.add(newNoteButton);
     verticalPanel.add(flexTable);
     
     for (int i = 0; i < messageList.size(); i++) {
@@ -76,7 +76,7 @@ public class NotesManager implements EntryPoint {
       updateButton.addClickHandler (new ClickHandler() {
         @Override
         public void onClick (ClickEvent event) {
-          final DialogBox myDialog = new DialogBox();
+          final DialogBox updateDialog = new DialogBox();
           final Button saveButton = new Button ("Save note " + messageList.get(j).getMessageID());          
           VerticalPanel vp = new VerticalPanel();
           final TextArea textArea2 = new TextArea();
@@ -84,19 +84,19 @@ public class NotesManager implements EntryPoint {
           vp.add(textArea2);
           vp.add(saveButton);
           
-          myDialog.add(vp);
+          updateDialog.add(vp);
                       
           int left = Window.getClientWidth()/ 2;
           int top = Window.getClientHeight()/ 2;
-          myDialog.setPopupPosition(left, top);
-          myDialog.show();
+          updateDialog.setPopupPosition(left, top);
+          updateDialog.show();
           
           saveButton.addClickHandler (new ClickHandler() {
             @Override
             public void onClick (ClickEvent event) {
               final Message message = new Message (messageList.get(j).getMessageID(), textArea2.getText());              
               updMessage (j, message);
-              myDialog.hide();
+              updateDialog.hide();
             } // public void onClick (ClickEvent event)
           }); // saveButton.addClickHandler (new ClickHandler()
         } // public void onClick (ClickEvent event)
