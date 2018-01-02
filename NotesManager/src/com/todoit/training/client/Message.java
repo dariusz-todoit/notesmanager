@@ -6,12 +6,12 @@ public class Message implements Serializable {
 
   private static final long serialVersionUID = 1L;
   
-  private String id;
+  private int id;
   private String note;
 
   public Message(){};
   
-  public Message (String id, String note) {
+  public Message (int id, String note) {
     this.id = id;
     this.note = note;
   }
@@ -20,7 +20,7 @@ public class Message implements Serializable {
     return note;
   }
   
-  public String getMessageID () {
+  public int getMessageID () {
     return id;
   }
 }

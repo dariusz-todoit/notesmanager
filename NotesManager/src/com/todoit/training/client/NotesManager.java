@@ -129,7 +129,7 @@ public class NotesManager implements EntryPoint {
   
   private void newMessage (String newNote) {
     final String newNote1 = newNote;
-    messageService.createNewMessage (newNote, new AsyncCallback<String> () {  
+    messageService.createNewMessage (newNote, new AsyncCallback<Integer> () {  
       @Override
       public void onFailure (Throwable caught) {
         /* server side error occurred */
@@ -137,7 +137,7 @@ public class NotesManager implements EntryPoint {
       } // public void onFailure (Throwable caught)
 
       @Override
-      public void onSuccess (String newID) {
+      public void onSuccess (Integer newID) {
         Message message = new Message (newID, newNote1);           
         messageList.add (message);                
         showPage ();               

@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("message")
 public interface MessageService extends RemoteService {
   ArrayList<Message> getMessages ();  
-  String createNewMessage (String newNote);
-  Boolean removeMessage (String messageID);
+  Integer createNewMessage (String newNote);
+  Boolean removeMessage (Integer messageID);
   Boolean updateMessage (Message newMessage);
 } // public interface MessageService extends RemoteService
