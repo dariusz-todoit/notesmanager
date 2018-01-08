@@ -9,18 +9,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 // import java.sql.SQLException;
 import java.sql.Statement;
+import com.todoit.training.server.ReadFromProperties;
+import java.util.Properties;
 
 public class DbMgmt {
   
   Connection conn;
-
+  
   public DbMgmt () {
     conn = null;
-    String url = "jdbc:jtds:sqlserver://127.0.0.1;instance=SQLEXPRESS;DatabaseName=notes";
-    String userName = "sa";
-    String password = "Dominik";
+    ReadFromProperties readFromProperties = new ReadFromProperties ();
+    Properties prop = readFromProperties.prop;
+    
+    // String url = "jdbc:jtds:sqlserver://127.0.0.1;instance=SQLEXPRESS;DatabaseName=notes";
+    // String userName = "sa";
+    // String password = "Dominik";
     try {
-      conn = DriverManager.getConnection(url, userName, password);
+      conn = DriverManager.getConnection (prop.getProperty("url"), 
+        prop.getProperty("userName"), prop.getProperty("password"));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -28,50 +34,70 @@ public class DbMgmt {
   
   public ArrayList<Message> getMessages () {
     String query = "select noteID, note from dbo.notes";
+    Statement stmt = null;
+    ResultSet rs = null;
+    
     ArrayList<Message> result = new ArrayList<Message> ();
     try {     
-      Statement stmt = conn.createStatement();
-      ResultSet rs = stmt.executeQuery(query);
+      stmt = conn.createStatement();
+      rs = stmt.executeQuery(query);
       while (rs.next()) {
         Message message =  new Message (rs.getInt("NoteID"), rs.getString("NOTE")); 
         result.add(message);        
-      }
-      rs.close();
+      }      
       return result;
     } catch (Exception e) {
       e.printStackTrace();
       return null;
-    } 
+    } finally {
+      try {rs.close();} catch (Exception e) {e.printStackTrace();}
+      try {stmt.close();} catch (Exception e) {e.printStackTrace();}
+      try {conn.close();} catch (Exception e) {e.printStackTrace();}
+    }
   }
   
-  public void updateMessage (int noteID, String updatedNote) {
-    String query = "update dbo.notes set note = '" + updatedNote + "' where noteID = " + noteID;
-    try {     
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(query);            
+  public void updateMessage (int noteID, String updatedNote) {    
+    String query = "update dbo.notes set note = ? where noteID = ?";
+    PreparedStatement stmt = null;    
+    try {
+      stmt = conn.prepareStatement (query);
+      stmt.setString (1, updatedNote);
+      stmt.setInt (2, noteID);      
+      stmt.executeUpdate();            
     } catch (Exception e) {
       e.printStackTrace();      
-    } 
+    } finally {
+      try {stmt.close();} catch (Exception e) {e.printStackTrace();}
+      try {conn.close();} catch (Exception e) {e.printStackTrace();}
+    }
   }
   
   public void removeMessage (int noteID) {
-    String query = "delete from dbo.notes where noteID = " + noteID;
+    String query = "delete from dbo.notes where noteID = ?";
+    PreparedStatement stmt = null;
     try {     
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(query);            
+      stmt = conn.prepareStatement (query);
+      stmt.setInt (1, noteID);
+      stmt.executeUpdate();            
     } catch (Exception e) {
       e.printStackTrace();      
-    } 
+    } finally {
+      try {stmt.close();} catch (Exception e) {e.printStackTrace();}
+      try {conn.close();} catch (Exception e) {e.printStackTrace();}
+    }
   }
   
   public int insertMessage (String newNote) {
     String[] returnId = { "NoteID" };
-    String query = "insert into dbo.notes (note) values ('" + newNote + "')";
+    String query = "insert into dbo.notes (note) values (?)";
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
     int result = 0;
     try { 
-      PreparedStatement stmt = conn.prepareStatement(query, returnId);
+      stmt = conn.prepareStatement(query, returnId);
+      stmt.setString (1, newNote);
       stmt.executeUpdate();     
-      ResultSet rs = stmt.getGeneratedKeys();
+      rs = stmt.getGeneratedKeys();
       if (rs.next()) {
         result = rs.getInt(1);           
       }
@@ -80,17 +106,13 @@ public class DbMgmt {
     } catch (Exception e) {
       e.printStackTrace();
       return 0;
-    } 
-    
+    } finally {
+      try {rs.close();} catch (Exception e) {e.printStackTrace();}
+      try {stmt.close();} catch (Exception e) {e.printStackTrace();}
+      try {conn.close();} catch (Exception e) {e.printStackTrace();}
+    }    
   }
   
-  public void closeDbMgmt () {
-    try {     
-      conn.close();     
-    } catch (Exception e) {
-      e.printStackTrace();      
-    }
-  }
 }
 
 
