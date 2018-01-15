@@ -9,8 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 // import java.sql.SQLException;
 import java.sql.Statement;
-import com.todoit.training.server.ReadFromProperties;
-import java.util.Properties;
+// import com.todoit.training.server.ReadFromProperties;
+import com.todoit.training.server.Config;
+// import java.util.Properties;
 
 public class DbMgmt {
   
@@ -18,15 +19,16 @@ public class DbMgmt {
   
   public DbMgmt () {
     conn = null;
-    ReadFromProperties readFromProperties = new ReadFromProperties ();
-    Properties prop = readFromProperties.prop;
+    // ReadFromProperties readFromProperties = new ReadFromProperties ();
+    Config config = new Config ();     
+    // Properties prop = readFromProperties.prop;
     
     // String url = "jdbc:jtds:sqlserver://127.0.0.1;instance=SQLEXPRESS;DatabaseName=notes";
     // String userName = "sa";
     // String password = "Dominik";
     try {
-      conn = DriverManager.getConnection (prop.getProperty("url"), 
-        prop.getProperty("userName"), prop.getProperty("password"));
+      conn = DriverManager.getConnection (config.getProperty("url"), 
+        config.getProperty("userName"), config.getProperty("password"));
     } catch (Exception e) {
       e.printStackTrace();
     }
