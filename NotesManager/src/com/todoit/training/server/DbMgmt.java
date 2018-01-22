@@ -4,31 +4,21 @@ package com.todoit.training.server;
 import com.todoit.training.client.Message;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-// import java.sql.SQLException;
 import java.sql.Statement;
-// import com.todoit.training.server.ReadFromProperties;
-import com.todoit.training.server.Config;
-// import java.util.Properties;
+
 
 public class DbMgmt {
   
   Connection conn;
   
-  public DbMgmt () {
+  public DbMgmt (Properties prop) {
     conn = null;
-    // ReadFromProperties readFromProperties = new ReadFromProperties ();
-    Config config = new Config ();     
-    // Properties prop = readFromProperties.prop;
-    
-    // String url = "jdbc:jtds:sqlserver://127.0.0.1;instance=SQLEXPRESS;DatabaseName=notes";
-    // String userName = "sa";
-    // String password = "Dominik";
     try {
-      conn = DriverManager.getConnection (config.getProperty("url"), 
-        config.getProperty("userName"), config.getProperty("password"));
+      conn = DriverManager.getConnection (prop.getProperty("url"), prop.getProperty("userName"), prop.getProperty("password"));
     } catch (Exception e) {
       e.printStackTrace();
     }
