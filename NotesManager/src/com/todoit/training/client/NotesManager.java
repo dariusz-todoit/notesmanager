@@ -10,6 +10,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -20,9 +21,10 @@ public class NotesManager implements EntryPoint {
 
   private MessageServiceAsync messageService = GWT.create(MessageService.class);
   private ArrayList<Message> messageList = new ArrayList<Message> ();
+  private ArrayList<Project> projectList = new ArrayList<Project> ();
   
   private void showPage () {
-    RootPanel.get("gwtContainer").clear();
+    RootPanel.get("gwtContainer").clear();    
     Button newNoteButton = new Button("New note");
     final PopupPanel newNotePopup = new PopupPanel();
     final TextArea textArea1 = new TextArea();
@@ -31,6 +33,14 @@ public class NotesManager implements EntryPoint {
     
     final VerticalPanel vPanel = new VerticalPanel();
     vPanel.add(textArea1);
+    
+    final ListBox listBox = new ListBox ();
+    for (int i = 0; i < projectList.size (); i++) {
+      listBox.addItem (projectList.get (i).getName ());
+    }
+    listBox.setVisibleItemCount (1);
+    vPanel.add (listBox);
+    
     Button saveNewNoteButton = new Button("Save note");
     saveNewNoteButton.setWidth("100px");
     vPanel.add(saveNewNoteButton);
@@ -44,7 +54,7 @@ public class NotesManager implements EntryPoint {
     saveNewNoteButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        newMessage (textArea1.getText());
+        newMessage (textArea1.getText(), listBox.getSelectedIndex());
         newNotePopup.hide();
       } // public void onClick(ClickEvent event)
     }); // saveNewNoteButton.addClickHandler(new ClickHandler()
@@ -62,8 +72,9 @@ public class NotesManager implements EntryPoint {
       Button updateButton = new Button ("Update note " + msg.getMessageID());
       flexTable.setHTML(i, 0, "" + msg.getMessageID());
       flexTable.setHTML(i, 1, msg.getNote());
-      flexTable.setWidget(i, 2, removeButton);
-      flexTable.setWidget(i, 3, updateButton);
+      flexTable.setHTML(i, 2, msg.getProjectName());
+      flexTable.setWidget(i, 3, removeButton);
+      flexTable.setWidget(i, 4, updateButton);
     
       removeButton.addClickHandler (new ClickHandler() {        
         @Override
@@ -94,7 +105,8 @@ public class NotesManager implements EntryPoint {
           saveButton.addClickHandler (new ClickHandler() {
             @Override
             public void onClick (ClickEvent event) {
-              final Message message = new Message (messageList.get(j).getMessageID(), textArea2.getText());              
+              final Message message = new Message (messageList.get(j).getMessageID(), textArea2.getText(), 
+                messageList.get(j).getProjectID(), messageList.get(j).getProjectName());              
               updMessage (j, message);
               updateDialog.hide();
             } // public void onClick (ClickEvent event)
@@ -117,7 +129,22 @@ public class NotesManager implements EntryPoint {
       @Override
       public void onSuccess (ArrayList<Message> result) {
         messageList = result;
-        showPage ();               
+        
+        messageService.getProjects (new AsyncCallback<ArrayList<Project>> () {
+          @Override
+          public void onFailure (Throwable caught) {
+            /* server side error occurred */
+            onFailureAlert (caught.getMessage());
+          } // public void onFailure (Throwable caught)
+          @Override
+          public void onSuccess (ArrayList<Project> result2) {
+            projectList = result2;
+            showPage ();               
+          } // public void onSuccess (ArrayList<Message> result)
+          
+        });        
+        
+        // showPage ();               
       } // public void onSuccess (ArrayList<Message> result)
       
     });// messageService.getMessages (new AsyncCallback<ArrayList<Message>> ()
@@ -127,9 +154,11 @@ public class NotesManager implements EntryPoint {
     Window.alert ("Unable to obtain server response: " + msg);
   }
   
-  private void newMessage (String newNote) {
+  private void newMessage (String newNote, int selectedValue) {
     final String newNote1 = newNote;
-    messageService.createNewMessage (newNote, new AsyncCallback<Integer> () {  
+    final int projectID = projectList.get(selectedValue).getID();
+    final String projectName = projectList.get(selectedValue).getName();
+    messageService.createNewMessage (newNote, projectID, new AsyncCallback<Integer> () {  
       @Override
       public void onFailure (Throwable caught) {
         /* server side error occurred */
@@ -138,7 +167,7 @@ public class NotesManager implements EntryPoint {
 
       @Override
       public void onSuccess (Integer newID) {
-        Message message = new Message (newID, newNote1);           
+        Message message = new Message (newID, newNote1, projectID, projectName);           
         messageList.add (message);                
         showPage ();               
       } // public void onSuccess (String newID)   

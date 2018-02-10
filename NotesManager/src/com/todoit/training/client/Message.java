@@ -8,12 +8,16 @@ public class Message implements Serializable {
   
   private int id;
   private String note;
+  private int projectID;
+  private String projectName;
 
   public Message(){};
   
-  public Message (int id, String note) {
+  public Message (int id, String note, int projectID, String projectName) {
     this.id = id;
     this.note = note;
+    this.projectID = projectID;
+    this.projectName = projectName;
   }
 
   public String getNote () {
@@ -22,5 +26,13 @@ public class Message implements Serializable {
   
   public int getMessageID () {
     return id;
+  }
+  
+  public int getProjectID () {
+    return projectID;
+  }
+  
+  public String getProjectName () {
+    return projectName;
   }
 }

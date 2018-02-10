@@ -2,6 +2,7 @@ package com.todoit.training.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.todoit.training.client.Message;
+import com.todoit.training.client.Project;
 import com.todoit.training.client.MessageService;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,10 +43,17 @@ public class MessageServiceImpl extends RemoteServiceServlet implements MessageS
     return messageList;    
   }  // public ArrayList<Message> getMessages ()
   
-  
-  public Integer createNewMessage (String newNote) {
+  public ArrayList<Project> getProjects () {
     DbMgmt dbmgmt = new DbMgmt(prop);
-    int newID = dbmgmt.insertMessage(newNote);
+    ArrayList<Project> projectList = dbmgmt.getProjects();
+        
+    return projectList;    
+  }
+  
+  
+  public Integer createNewMessage (String newNote, Integer projectID) {
+    DbMgmt dbmgmt = new DbMgmt(prop);
+    int newID = dbmgmt.insertMessage (newNote, projectID);
                
     return newID;    
   } // public createNewMessage (String newNote)
