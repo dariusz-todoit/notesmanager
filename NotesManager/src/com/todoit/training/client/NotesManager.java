@@ -123,9 +123,9 @@ public class NotesManager implements EntryPoint {
               saveButton.addClickHandler (new ClickHandler() {
                 @Override
                 public void onClick (ClickEvent event) {
-                  final Message message = new Message (messageList.get(j).getMessageID(), updateNoteTextArea.getText(), 
+                  Message message = new Message (messageList.get(j).getMessageID(), updateNoteTextArea.getText(), 
                     messageList.get(j).getProjectID(), messageList.get(j).getProjectName());              
-                  updMessage (j, message);
+                  updMessage (message);
                   updateDialog.hide();
                 } // public void onClick (ClickEvent event)
               }); // saveButton.addClickHandler (new ClickHandler()
@@ -191,7 +191,8 @@ public class NotesManager implements EntryPoint {
     }); // messageService.removeMessage (messageList.get(j).getMessageID(), new AsyncCallback<Boolean> ()
   }
   
-  private void updMessage (int index, Message message) {
+  
+  private void updMessage (Message message) {
     messageService.updateMessage (message, new AsyncCallback<Boolean> () {
       @Override
       public void onFailure (Throwable caught) {
