@@ -66,7 +66,12 @@ public class NotesManager implements EntryPoint {
         saveNewNoteButton.addClickHandler(new ClickHandler() {
           @Override
           public void onClick(ClickEvent event) {
-            String value = projectsListBox.getValue (projectsListBox.getSelectedIndex());
+            int idx = projectsListBox.getSelectedIndex();
+            if (idx < 0) {
+              Window.alert ("Wybierz projekt!");
+              return;
+            }
+            String value = projectsListBox.getValue (idx);
             if (value.equals ("")) {
               Window.alert ("Wybierz projekt!");
             } else {
